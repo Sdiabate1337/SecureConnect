@@ -12,6 +12,7 @@ services:
       - mongo
     networks:
       - user-network
+      - shared-network
     secrets:
       - JWT_SECRET
       - MONGO_URL
@@ -24,6 +25,7 @@ services:
     restart: unless-stopped
     networks:
       - user-network
+      - shared-network
     environment:
       - MONGO_INITDB_ROOT_USERNAME=${MONGO_ROOT_USERNAME}  # Environment variable for MongoDB root username
       - MONGO_INITDB_ROOT_PASSWORD=${MONGO_ROOT_PASSWORD} 
@@ -46,8 +48,6 @@ volumes:
 
 networks:
   user-network:
-<<<<<<< HEAD
     driver: bridge
-=======
+  shared-network:
     driver: bridge
->>>>>>> feature/user-service
