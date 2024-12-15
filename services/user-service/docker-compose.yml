@@ -1,0 +1,49 @@
+
+services:
+  user-service:
+    build: .
+    ports:
+      - "5001:5001"
+    environment:
+      - JWT_SECRET_FILE=/run/secrets/JWT_SECRET
+      - JWT_EXPIRES_IN=1h
+      - MONGO_URL_FILE=/run/secrets/USER_MONGO_URL
+    depends_on:
+      - mongo
+    networks:
+      - user-network
+    secrets:
+      - JWT_SECRET
+      - MONGO_URL
+    restart: always
+
+  mongo:
+    image: mongo:latest
+    ports:
+      - '27017:27017'  # MongoDB port
+    restart: unless-stopped
+    networks:
+      - user-network
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=${MONGO_ROOT_USERNAME}  # Environment variable for MongoDB root username
+      - MONGO_INITDB_ROOT_PASSWORD=${MONGO_ROOT_PASSWORD} 
+    healthcheck:
+      test: ['CMD', 'mongo', 'admin', '--eval', "db.adminCommand('ping').ok"]
+      interval: 5s
+      timeout: 2s
+      retries: 20
+    volumes:
+      - mongo-data:/data/db
+
+secrets:
+  JWT_SECRET:
+    file: ./secrets/JWT_SECRET.txt
+  MONGO_URL:
+    file: ./secrets/USER_MONGO_URL.txt
+
+volumes:
+  mongo-data:
+
+networks:
+  user-network:
+    driver: bridge
