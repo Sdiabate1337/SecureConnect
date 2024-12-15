@@ -46,4 +46,8 @@ volumes:
 
 networks:
   user-network:
+<<<<<<< HEAD
     driver: bridge
+=======
+    driver: bridge
+>>>>>>> feature/user-service
