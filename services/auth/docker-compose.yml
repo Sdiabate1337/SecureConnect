@@ -21,16 +21,15 @@ services:
   mongo:
     image: mongo:latest
     ports:
-      - '27017:27017'  # Standard MongoDB port for non-replicated setups
+      - '27018:27017'  # Standard MongoDB port for non-replicated setups
     restart: unless-stopped
     networks:
       - auth-network
-      - shared-network
     environment:
       - MONGO_INITDB_ROOT_USERNAME=${MONGO_ROOT_USERNAME}  # Environment variable for MongoDB root username
       - MONGO_INITDB_ROOT_PASSWORD=${MONGO_ROOT_PASSWORD}  # Environment variable for MongoDB root password
     healthcheck:
-      test: ['CMD', 'mongo', 'admin', '--eval', "db.adminCommand('ping').ok"]
+      test: ['CMD', 'mongosh', 'admin', '--eval', "db.adminCommand('ping').ok"]
       interval: 5s
       timeout: 2s
       retries: 20
