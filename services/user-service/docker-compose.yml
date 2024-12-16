@@ -16,11 +16,12 @@ services:
       - JWT_SECRET
       - MONGO_URL
     restart: always
+  
 
   mongo:
     image: mongo:latest
     ports:
-      - '27017:27017'  # MongoDB port
+      - '27019:27017'  # MongoDB port
     restart: unless-stopped
     networks:
       - user-network
@@ -28,7 +29,7 @@ services:
       - MONGO_INITDB_ROOT_USERNAME=${MONGO_ROOT_USERNAME}  # Environment variable for MongoDB root username
       - MONGO_INITDB_ROOT_PASSWORD=${MONGO_ROOT_PASSWORD} 
     healthcheck:
-      test: ['CMD', 'mongo', 'admin', '--eval', "db.adminCommand('ping').ok"]
+      test: ['CMD', 'mongosh', 'admin', '--eval', "db.adminCommand('ping').ok"]
       interval: 5s
       timeout: 2s
       retries: 20
@@ -46,8 +47,4 @@ volumes:
 
 networks:
   user-network:
-<<<<<<< HEAD
     driver: bridge
-=======
-    driver: bridge
->>>>>>> feature/user-service
