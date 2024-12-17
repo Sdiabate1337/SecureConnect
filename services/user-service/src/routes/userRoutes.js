@@ -9,6 +9,7 @@ import {
   resetPassword
 } from '../controllers/userController.js';
 import { authMiddleware } from '../middlewares/authMiddleware.js';
+import { getUserById } from '../utils/userServiceClient.js';
 
 const router = express.Router();
 
@@ -18,6 +19,7 @@ router.post('/register', registerUser); // User registration
 router.get('/profile', authMiddleware, getUserProfile); // Get user profile
 router.put('/profile', authMiddleware, updateUserProfile); // Update user profile
 router.post('/logout', authMiddleware, logoutUser); // Logout user
+router.get('/:id', authMiddleware, getUserById);
 
 // Password reset routes
 router.post('/password-reset-request', requestPasswordReset); // Request password reset

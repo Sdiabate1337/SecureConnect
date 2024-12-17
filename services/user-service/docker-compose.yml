@@ -12,10 +12,12 @@ services:
       - mongo
     networks:
       - user-network
+      - shared-network
     secrets:
       - JWT_SECRET
       - MONGO_URL
     restart: always
+    env_file: ".env"
   
 
   mongo:
@@ -48,3 +50,5 @@ volumes:
 networks:
   user-network:
     driver: bridge
+  shared-network:
+    external: true

@@ -37,12 +37,13 @@ const userSchema = new mongoose.Schema(
       default: 'USER',
       enum: ['USER', 'PROFESSIONAL', 'ADMIN'],
     },
+    
   },
   {
     timestamps: true,
     toJSON: {
       transform(doc, ret) {
-        delete ret.password;
+        delete ret.password; // Remove password from the response object
         return ret;
       },
     },
@@ -79,6 +80,7 @@ userSchema.statics.createUser = async function (userData) {
 userSchema.statics.findUserByEmail = async function (email) {
   return await this.findOne({ email }).lean(); // Optimized query
 };
+
 
 const User = mongoose.model('User', userSchema);
 export default User;

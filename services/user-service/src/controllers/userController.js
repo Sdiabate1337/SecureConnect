@@ -3,6 +3,7 @@ import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
 import crypto from 'crypto'; // For generating reset token
 import nodemailer from 'nodemailer'; // For sending emails
+import axios from 'axios';
 
 // Generate JWT
 const generateToken = (id, role) => {
@@ -119,11 +120,14 @@ export const loginUser = async (req, res) => {
   }
 };
 
-// Register User
+// Enregistrer un utilisateur
 export const registerUser = async (req, res) => {
   try {
-    const { name, email, password, bio, profilePicture, role } = req.body;
-    
+    const { 
+      name, email, password, bio, profilePicture, role, 
+      profession, experience, qualifications 
+    } = req.body;
+
     // Vérifiez si l'email est déjà utilisé
     const userExists = await User.findOne({ email });
     if (userExists) {
@@ -133,22 +137,57 @@ export const registerUser = async (req, res) => {
       });
     }
 
-    // Créer un nouvel utilisateur
+    let userId = null;
+
+    // Si l'utilisateur a le rôle PROFESSIONAL, validez d'abord le profil professionnel
+    if (role === 'PROFESSIONAL') {
+      if (!profession || !experience || !qualifications) {
+        return res.status(400).json({
+          success: false,
+          message: 'Profession, experience, and qualifications are required for professionals.',
+        });
+      }
+
+      // Créer un ID temporaire pour l'utilisateur
+      const tempUser = new User({
+        name, email, password, bio, profilePicture, role,
+      });
+      userId = tempUser._id;
+
+      // Envoi des données au service professionnel
+      const professionalData = {
+        userId,
+        profession,
+        experience,
+        qualifications,
+      };
+
+      try {
+        await axios.post(
+          `${process.env.PROFESSIONAL_SERVICE_URL}/api/professionals`,
+          professionalData
+        );
+      } catch (error) {
+        console.error('Error validating professional profile:', error.response?.data || error.message);
+        console.log("Professional Service URL:", process.env.PROFESSIONAL_SERVICE_URL);
+        return res.status(500).json({
+          success: false,
+          message: 'Error creating professional profile in the Professional Service.',
+        });
+      }
+    }
+
+    // Enregistrer l'utilisateur après validation réussie
     const user = new User({
-      name,
-      email,
-      password,
-      bio,
-      profilePicture,
-      role,
+      name, email, password, bio, profilePicture, role,
     });
 
-    // Enregistrez l'utilisateur dans la base de données
     await user.save();
 
+    // Réponse de succès
     res.status(201).json({
       success: true,
-      message: 'User registered successfully',
+      message: 'User registered successfully.',
       data: {
         id: user._id,
         name: user.name,
@@ -160,10 +199,11 @@ export const registerUser = async (req, res) => {
     console.error('Error creating user:', error);
     res.status(500).json({
       success: false,
-      message: 'Internal server error',
+      message: 'Internal server error while registering user.',
     });
   }
 };
+
 
 // Logout User (client-side action, typically by deleting the token on client)
 export const logoutUser = async (req, res) => {
@@ -264,3 +304,5 @@ export const resetPassword = async (req, res) => {
     });
   }
 };
+
+
