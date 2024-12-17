@@ -27,6 +27,7 @@ services:
     restart: unless-stopped
     networks:
       - user-network
+      - shared-network
     environment:
       - MONGO_INITDB_ROOT_USERNAME=${MONGO_ROOT_USERNAME}  # Environment variable for MongoDB root username
       - MONGO_INITDB_ROOT_PASSWORD=${MONGO_ROOT_PASSWORD} 
@@ -51,4 +52,4 @@ networks:
   user-network:
     driver: bridge
   shared-network:
-    external: true
+    driver: bridge
